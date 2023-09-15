@@ -1,0 +1,226 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+#include<string.h>
+typedef struct Shopping {
+	char name[50];
+	int count;
+	struct Shopping* next;
+}S;
+
+S* list = NULL;
+
+//1.添加商品
+void add(char itemName[], int itemCount) {
+	S* newltem = (S*)malloc(sizeof(S));
+	newltem->next = NULL;
+	strcpy(newltem->name, itemName);
+	newltem->count = itemCount;
+
+	if (list == NULL) {
+		list = newltem;
+		return;
+	}
+
+	S* p = list;
+	while (p->next != NULL) {
+		p = p->next;
+	}
+	p->next = newltem;
+};
+//2.移除商品
+void remove(char itemName[]) {
+	S* curent = list;
+	S* previous = NULL;
+	while (curent != NULL) {
+		if (strcmp(curent->name, itemName)) {
+			if (previous != NULL) {
+				previous->next = curent->next;
+			}
+			else {
+				list = curent->next;
+			}
+			free(curent);
+			break;
+		}
+		previous = curent;
+		curent = curent->next;
+	}
+};
+
+//3.查看
+void display() {
+	S* current = list;
+	printf("购物清单:\n");
+	while (current != NULL) {
+		printf("%s-数量：%d\n", current->name, current->count);
+		current = current->next;
+	}
+};
+
+//4.修改数量
+void updata(char itemName[], int newltemCount) {
+	S* current = list;
+	while (current != NULL) {
+		if (strcmp(current->name, itemName) == 0) {
+			current->count = newltemCount;
+			break;
+		}
+		current = current->next;
+	}
+};
+
+//5.清空
+void clear() {
+	while (list != NULL) {
+		S* temp = list;
+		list = list->next;
+		free(temp);
+	}
+};
+
+//6.计算总数量
+int total() {
+	S* current = list;
+	int total1 = 0;
+	while (current != NULL) {
+		total1++;
+		current = current->next;
+	}
+	return total1;
+};
+
+//7.查找商品
+void find(char itemName[]) {
+	S* current = list;
+	printf("查找商品\"%s\" : \n", current->name, current->count);
+	while (current != NULL) {
+		if (strcmp(current->name, itemName) == 0) {
+			printf("%s-数量：%d\n", current->name, current->count);
+			break;
+		}
+		current = current->next;
+	}
+	printf("未找到商品\"%s\"。\n", itemName);
+
+};
+
+//8.排序商品
+void sort() {
+	S* current = list;
+	S* nextltem = NULL;
+	char tempName[50];
+	int tempCount;
+	while (current != NULL) {
+		nextltem = current->next;
+		while (nextltem != NULL) {
+			if (strcmp(current->name, nextltem->name) > 0) {
+				strcpy(tempName, current->name);
+				strcpy(current->name, nextltem->name);
+				strcpy(nextltem->name, tempName);
+				tempCount = current->count;
+				current->count = nextltem->count;
+				nextltem->count = tempCount;
+			}
+			nextltem = nextltem->next;
+		}
+		current->next;
+	}
+};
+
+//9.合并清单
+void merge(S** list1, S** list2) {
+	S* current = *list1;
+	while (current != NULL) {
+		current = current->next;
+	}
+	current->next = *list2;
+	*list2 = NULL;
+};
+
+//10.删除商品
+void deletelist(char itemName[], int deleteAll) {
+	S* current = list;
+	S* prev = NULL;
+	while (current != NULL) {
+		if (strcmp(current->name, itemName)) {
+			if (prev == NULL) {
+				S* temp = list;
+				list = temp->next;
+				free(temp);
+				if (!deleteAll)break;
+			}
+			else {
+				prev->next = current->next;
+				free(current);
+				current = prev->next;
+				if (!deleteAll)
+				{
+					break;
+				}
+			}
+		}
+		else {
+			prev = current;
+			current = current->next;
+		}
+	}
+}
+int main() {
+	int n, i, j;
+	char itemName[50];
+	int itemCount;
+	int newitemCount;
+	int deleteAll;
+	int total1;
+	printf("请输入1-10使用功能，其他为退出\n1.添加商品\n2.移除商品\n3.查看\n4.修改数量\n5.清空\n");
+	printf("6.计算总数量\n7.查找商品\n8.排序商品\n9.合并清单\n10.删除商品\n");
+	while(1){
+		scanf("%d", &n);
+		if (n == 1) {
+			scanf("%s %d", itemName, &itemCount);
+			add(itemName, itemCount);
+		}
+		else if (n == 2) {
+			scanf("%s ", itemName);
+		}
+		else if (n == 3) {
+			display();
+		}
+		else if (n == 4) {
+			scanf("%s %d", itemName, &newitemCount);
+			updata(itemName, newitemCount);
+		}
+		else if (n == 5) {
+			clear();
+		}
+		else if (n == 6) {
+			total1=total();
+			printf("总数量：%d\n", total1);
+		}
+		else if (n == 7) {
+			scanf("%s", itemName);
+			find(itemName);
+		}
+		else if (n == 8) {
+			sort();
+		}
+		else if (n == 9) {
+			S* list1 = (S*)malloc(sizeof(S));
+			S* list2 = (S*)malloc(sizeof(S));
+			list1->next = NULL;
+			list2->next = NULL;
+			merge(&list1, &list2);
+		}
+		else if (n == 10) {
+			scanf("%s %d", itemName, &deleteAll);
+			deletelist(itemName, deleteAll);
+		}
+		else {
+			break;
+		}
+	}
+	return 0;
+}
+
+
